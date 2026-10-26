@@ -1,4 +1,67 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Tour 360°</title><style>html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:-apple-system,system-ui,sans-serif}#v{position:fixed;inset:0}.top{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 24px;color:#fff;font-weight:700;background:linear-gradient(#0009,#0000);pointer-events:none}.nav{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;overflow-x:auto;padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 12px);background:linear-gradient(#0000,#000a)}.nav button{flex:none;border:0;border-radius:20px;padding:9px 14px;background:#fff3;color:#fff;font:600 14px system-ui}.nav button.on{background:#fff;color:#000}.vb{position:relative;overflow:hidden;touch-action:none;background:#000}.vb canvas{display:block;width:100%;height:100%}.hl{position:absolute;inset:0;pointer-events:none}.hs{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;border:0;border-radius:24px;padding:9px 14px;background:rgba(0,0,0,.6);color:#fff;font:600 14px system-ui;display:none;white-space:nowrap}.hs:before{content:"➜ "}</style></head><body><div id="v"></div><div class="top">Tour 360°</div><div class="nav" id="nav"></div><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script>var TOUR={"t":"Tour 360°","s":[{"id":"c1","name":"Cômodo 1","hs":[]}]};function makeViewer(box,cb){
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Pano360">
+<title>Pano360 Studio</title><style>
+:root{--bg:#f3f3f6;--fg:#15151a;--card:#fff;--mut:#6b6b76;--ac:#0a84ff;--ok:#1f9d55;--bd:#dcdce2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111114;--fg:#eee;--card:#1c1c21;--mut:#9a9aa5;--ac:#3d9bff;--ok:#30d158;--bd:#2c2c33}}
+:root[data-theme="dark"]{--bg:#111114;--fg:#eee;--card:#1c1c21;--mut:#9a9aa5;--ac:#3d9bff;--ok:#30d158;--bd:#2c2c33}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px -apple-system,system-ui,sans-serif}
+.wrap{max-width:720px;margin:0 auto;padding:14px 14px 40px}
+h1{font-size:21px;margin:6px 0 12px}
+input,select{width:100%;box-sizing:border-box;padding:13px;margin:5px 0;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--fg);font:inherit}
+.btn{display:block;width:100%;box-sizing:border-box;text-align:center;padding:14px;margin:8px 0;border:0;border-radius:12px;background:var(--card);color:var(--ac);font:600 16px system-ui;border:1px solid var(--bd)}
+.btn.pri{background:var(--ac);color:#fff;border-color:var(--ac)}.btn.on{background:var(--ok);color:#fff;border-color:var(--ok)}
+.btn:disabled{opacity:.4}
+#chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0}
+#chips button{flex:none;border:1px solid var(--bd);border-radius:20px;padding:8px 14px;background:var(--card);color:var(--fg);font:600 14px system-ui}
+#chips button.on{background:var(--fg);color:var(--bg)}
+#v{height:56vh;border-radius:14px;margin:8px 0}
+.row{display:flex;gap:8px;align-items:center}.row>*{margin:5px 0}
+.sm{flex:none;width:auto;padding:12px 14px}
+#hint,#msg{color:var(--mut);font-size:14px;margin:6px 2px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px 12px;margin:8px 0}
+.li{display:flex;justify-content:space-between;align-items:center;padding:6px 0}
+.li button{border:0;background:none;color:#e5484d;font:600 14px system-ui}
+
+h2{font-size:17px;margin:22px 0 6px}details{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px 12px;margin:8px 0}
+summary{font-weight:600}.sm2{padding:9px;font-size:14px}#lnk a{color:var(--ac);word-break:break-all;font-weight:600}
+</style></head><body>
+<div class="wrap">
+<h1>🏠 Pano360 Studio</h1>
+<details id="cfgbox"><summary>⚙️ Configurações</summary>
+<input id="tok" type="password" placeholder="Token do GitHub (github_pat_…)">
+<input id="user" placeholder="Seu usuário do GitHub" autocapitalize="off">
+<input id="priv" placeholder="Repositório privado das fotos" autocapitalize="off">
+<input id="pub" placeholder="Repositório público dos tours" autocapitalize="off">
+<button id="save" class="btn pri">Salvar</button></details>
+<h2>1 · Cômodos e fotos</h2>
+<input id="title" placeholder="Nome do tour (ex.: Apartamento 34 m²)">
+<div id="rooms"></div>
+<button id="addr" class="btn">＋ Novo cômodo</button>
+<button id="send" class="btn pri">Enviar fotos e costurar 360°</button>
+<button id="loadp" class="btn">Carregar panoramas já prontos do repositório</button>
+<label class="btn" for="f">Adicionar foto 360° pronta (JPG)</label><input id="f" type="file" accept="image/jpeg" multiple hidden>
+<div id="msg"></div>
+<div id="tour" hidden>
+<h2>2 · Ligar os cômodos</h2>
+<div id="chips"></div><div id="v"></div>
+<div id="bar" class="row" hidden><input id="nm" placeholder="Nome deste cômodo"><button id="del" class="btn sm">Excluir</button></div>
+<button id="pk" class="btn">＋ Ligar a outro cômodo</button>
+<div id="hint">Gire a imagem com o dedo; pince para dar zoom.</div>
+<div id="sheet" class="card" hidden><div>Esta passagem leva para:</div><select id="to"></select>
+<div class="row"><button id="ok" class="btn pri">Confirmar</button><button id="no" class="btn sm">Cancelar</button></div></div>
+<div id="hl"></div>
+<h2>3 · Publicar</h2>
+<button id="ex" class="btn pri" disabled>Publicar tour</button><div id="lnk"></div>
+</div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+var VCSS='.vb{position:relative;overflow:hidden;touch-action:none;background:#000}.vb canvas{display:block;width:100%;height:100%}.hl{position:absolute;inset:0;pointer-events:none}.hs{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;border:0;border-radius:24px;padding:9px 14px;background:rgba(0,0,0,.6);color:#fff;font:600 14px system-ui;display:none;white-space:nowrap}.hs:before{content:"➜ "}';
+var st=document.createElement('style');st.textContent=VCSS;document.head.appendChild(st);
+/* ---- visualizador 360° (usado aqui e no tour exportado) ---- */
+function makeViewer(box,cb){
  cb=cb||{};box.classList.add('vb');
  var R=new THREE.WebGLRenderer({antialias:true}),S=new THREE.Scene(),C=new THREE.PerspectiveCamera(75,1,1,1100);
  R.setPixelRatio(Math.min(window.devicePixelRatio||1,2));R.outputEncoding=THREE.sRGBEncoding;box.appendChild(R.domElement);
@@ -32,10 +95,112 @@
   load:function(u,y){new THREE.TextureLoader().load(u,function(t){t.encoding=THREE.sRGBEncoding;t.generateMipmaps=false;t.minFilter=THREE.LinearFilter;t.magFilter=THREE.LinearFilter;if(M.material.map)M.material.map.dispose();M.material.map=t;M.material.color.set(0xffffff);M.material.needsUpdate=true});yaw=y||0;pit=0;fov=75},
   setHotspots:function(a){hot=a;L.innerHTML='';els=a.map(function(k){var b=document.createElement('button');b.className='hs';b.textContent=k.label;b.addEventListener('pointerdown',function(e){e.stopPropagation()});b.addEventListener('click',function(){cb.onHot&&cb.onHot(k)});L.appendChild(b);return b})},
   setPick:function(v){pick=v}
- }};function boot(){
+ }}
+
+/* ---- inicialização do tour exportado ---- */
+function boot(){
  var T=TOUR,cur,nav=document.getElementById('nav'),V=makeViewer(document.getElementById('v'),{onHot:function(k){go(k.to)}});
  function by(id){return T.s.filter(function(s){return s.id==id})[0]}
  function go(id){cur=id;var s=by(id);V.load('images/'+id+'.jpg');
   V.setHotspots(s.hs.map(function(h){return{yaw:h.yaw,pitch:h.pitch,label:by(h.to).name,to:h.to}}));draw()}
  function draw(){nav.innerHTML='';T.s.forEach(function(s){var b=document.createElement('button');b.textContent=s.name;if(s.id==cur)b.className='on';b.onclick=function(){go(s.id)};nav.appendChild(b)})}
- go(T.s[0].id)};boot();</script></body></html>
+ go(T.s[0].id)}
+
+/* ---- editor ---- */
+var $=function(i){return document.getElementById(i)},SC=[],cur=null,pend=null,picking=false,n=0;
+function sc(id){return SC.filter(function(s){return s.id==id})[0]}
+var V=makeViewer($('v'),{onPick:function(y,p){pend={yaw:y,pitch:p};openSheet()},onHot:function(k){go(k.to)}});
+function msg(t){$('msg').textContent=t}
+function go(id){cur=id;V.load(sc(id).url);$('nm').value=sc(id).name;draw()}
+function draw(){
+ var s=sc(cur);$('chips').innerHTML='';
+ SC.forEach(function(x){var b=document.createElement('button');b.textContent=x.name;if(x.id==cur)b.className='on';b.onclick=function(){go(x.id)};$('chips').appendChild(b)});
+ $('bar').hidden=!s;$('ex').disabled=!SC.length;
+ if(!s){V.setHotspots([]);$('hl').innerHTML='';return}
+ V.setHotspots(s.hs.map(function(h){return{yaw:h.yaw,pitch:h.pitch,label:sc(h.to).name,to:h.to}}));
+ $('hl').innerHTML='';
+ s.hs.forEach(function(h,i){var d=document.createElement('div');d.className='li';d.innerHTML='<span></span><button>Remover</button>';
+  d.firstChild.textContent='➜ '+sc(h.to).name;d.lastChild.onclick=function(){s.hs.splice(i,1);draw()};$('hl').appendChild(d)})}
+$('f').onchange=function(e){
+ [].forEach.call(e.target.files,function(f){n++;SC.push({id:'c'+n,name:'Cômodo '+n,file:f,url:URL.createObjectURL(f),hs:[]})});
+ e.target.value='';if(SC.length)go(cur&&sc(cur)?cur:SC[0].id);msg(SC.length+' foto(s) carregada(s).')};
+$('nm').oninput=function(){sc(cur).name=$('nm').value||'Sem nome';draw()};
+$('del').onclick=function(){var id=cur;SC=SC.filter(function(s){return s.id!=id});SC.forEach(function(s){s.hs=s.hs.filter(function(h){return h.to!=id})});cur=SC.length?SC[0].id:null;if(cur)go(cur);else draw()};
+function setPick(v){picking=v;V.setPick(v);$('pk').className='btn'+(v?' on':'');$('pk').textContent=v?'Toque na foto onde fica a passagem…':'② ＋ Ligar a outro cômodo';
+ $('hint').textContent=v?'Toque exatamente na porta, corredor ou passagem. Para cancelar, toque no botão verde.':'Gire a imagem com o dedo; pince para dar zoom.'}
+$('pk').onclick=function(){if(!cur)return msg('Adicione uma foto primeiro.');if(SC.length<2)return msg('Adicione ao menos 2 fotos para ligar cômodos.');setPick(!picking)};
+function openSheet(){var o=$('to');o.innerHTML='';SC.filter(function(s){return s.id!=cur}).forEach(function(s){var p=document.createElement('option');p.value=s.id;p.textContent=s.name;o.appendChild(p)});$('sheet').hidden=false}
+$('ok').onclick=function(){sc(cur).hs.push({yaw:pend.yaw,pitch:pend.pitch,to:$('to').value});$('sheet').hidden=true;setPick(false);draw()};
+$('no').onclick=function(){$('sheet').hidden=true;setPick(false)};
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function buildHtml(){
+ var title=$('title').value||'Tour 360°';
+ var T={t:title,s:SC.map(function(s){return{id:s.id,name:s.name,hs:s.hs}})};
+ var css='html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:-apple-system,system-ui,sans-serif}#v{position:fixed;inset:0}.top{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 24px;color:#fff;font-weight:700;background:linear-gradient(#0009,#0000);pointer-events:none}.nav{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;overflow-x:auto;padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 12px);background:linear-gradient(#0000,#000a)}.nav button{flex:none;border:0;border-radius:20px;padding:9px 14px;background:#fff3;color:#fff;font:600 14px system-ui}.nav button.on{background:#fff;color:#000}'+VCSS;
+ return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>'+esc(title)+'</title><style>'+css+'</style></head><body><div id="v"></div><div class="top">'+esc(title)+'</div><div class="nav" id="nav"></div>'
+  +'<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script><script>var TOUR='+JSON.stringify(T).replace(/</g,'\\u003c')+';'+makeViewer.toString()+';'+boot.toString()+';boot();<\/script></body></html>'}
+
+/* ---- GitHub + app ---- */
+var cfg={};try{cfg=JSON.parse(localStorage.p360||'{}')}catch(e){}
+cfg.priv=cfg.priv||'panofotos';cfg.pub=cfg.pub||'tours';
+var RM=[{name:'Sala',files:[]}],slug='';
+function sl(s){return(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
+['tok','user','priv','pub'].forEach(function(k){$(k).value=cfg[k]||''});
+if(!cfg.tok)$('cfgbox').open=true;
+$('save').onclick=function(){['tok','user','priv','pub'].forEach(function(k){cfg[k]=$(k).value.trim()});localStorage.p360=JSON.stringify(cfg);$('cfgbox').open=false;msg('Configurações salvas.')};
+async function gh(p,o){o=o||{};var h=Object.assign({Authorization:'Bearer '+cfg.tok,Accept:'application/vnd.github+json'},o.headers||{});if(o.body)h['Content-Type']='application/json';
+ var r=await fetch('https://api.github.com'+p,{method:o.method,body:o.body,headers:h});if(!r.ok)throw new Error(r.status+': '+(await r.text()).slice(0,160));return r}
+async function gj(p,o){return(await gh(p,o)).json()}
+function b64(b){return new Promise(function(ok){var r=new FileReader();r.onload=function(){ok(r.result.split(',')[1])};r.readAsDataURL(b)})}
+async function commit(repo,files,m){
+ var P='/repos/'+cfg.user+'/'+repo,ref=await gj(P+'/git/ref/heads/main'),base=await gj(P+'/git/commits/'+ref.object.sha),tree=[];
+ for(var i=0;i<files.length;i++){var f=files[i];msg('Enviando '+(i+1)+'/'+files.length+'…');
+  var body=f.text!=null?{content:f.text,encoding:'utf-8'}:{content:await b64(f.blob),encoding:'base64'};
+  var b=await gj(P+'/git/blobs',{method:'POST',body:JSON.stringify(body)});tree.push({path:f.path,mode:'100644',type:'blob',sha:b.sha})}
+ var t=await gj(P+'/git/trees',{method:'POST',body:JSON.stringify({base_tree:base.tree.sha,tree:tree})});
+ var c=await gj(P+'/git/commits',{method:'POST',body:JSON.stringify({message:m,tree:t.sha,parents:[ref.object.sha]})});
+ await gh(P+'/git/refs/heads/main',{method:'PATCH',body:JSON.stringify({sha:c.sha})});return c.sha}
+async function waitRun(sha){var P='/repos/'+cfg.user+'/'+cfg.priv,t0=Date.now();
+ while(Date.now()-t0<1500000){await new Promise(function(r){setTimeout(r,6000)});
+  var j=await gj(P+'/actions/runs?head_sha='+sha),r=j.workflow_runs&&j.workflow_runs[0];
+  if(!r){if(Date.now()-t0>70000)return;msg('Aguardando o GitHub iniciar a costura…');continue}
+  if(r.status=='completed'){if(r.conclusion!='success')throw new Error('A costura falhou. Veja: '+r.html_url);return}
+  msg('Costurando… ('+Math.round((Date.now()-t0)/1000)+' s)')}
+ throw new Error('Tempo esgotado.')}
+async function pano(file){return(await gh('/repos/'+cfg.user+'/'+cfg.priv+'/contents/panos/'+file,{headers:{Accept:'application/vnd.github.raw+json'}})).blob()}
+function addScene(name,blob){n++;var id='c'+n;SC.push({id:id,name:name,file:blob,url:URL.createObjectURL(blob),hs:[]});$('tour').hidden=false;if(!cur||!sc(cur))go(id);else draw()}
+var oldF=$('f').onchange;$('f').onchange=function(e){oldF(e);$('tour').hidden=!SC.length};
+function drawRooms(){var box=$('rooms');box.innerHTML='';
+ RM.forEach(function(r,i){var d=document.createElement('div');d.className='card';
+  var nm=document.createElement('input');nm.value=r.name;nm.placeholder='Nome do cômodo';nm.oninput=function(){r.name=nm.value};
+  var lb=document.createElement('label');lb.className='btn';lb.textContent=r.files.length?r.files.length+' fotos (toque para trocar)':'Escolher as fotos deste cômodo';
+  var inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.multiple=true;inp.hidden=true;inp.onchange=function(){r.files=[].slice.call(inp.files);drawRooms()};lb.appendChild(inp);
+  var x=document.createElement('button');x.className='btn sm2';x.textContent='Remover cômodo';x.onclick=function(){RM.splice(i,1);if(!RM.length)RM.push({name:'',files:[]});drawRooms()};
+  d.appendChild(nm);d.appendChild(lb);d.appendChild(x);box.appendChild(d)})}
+drawRooms();
+$('addr').onclick=function(){RM.push({name:'',files:[]});drawRooms()};
+$('send').onclick=async function(){
+ try{if(!cfg.tok||!cfg.user)return msg('Preencha as configurações (⚙️) primeiro.');
+  var t=$('title').value;if(!sl(t))return msg('Dê um nome ao tour.');
+  var rs=RM.filter(function(r){return r.files.length>=3});if(!rs.length)return msg('Cada cômodo precisa de ao menos 3 fotos.');
+  var files=[];rs.forEach(function(r){r.folder=sl(t)+'-'+(sl(r.name)||'comodo');r.files.forEach(function(f,i){files.push({path:'fotos/'+r.folder+'/'+String(i).padStart(3,'0')+'.jpg',blob:f})})});
+  $('send').disabled=true;var sha=await commit(cfg.priv,files,'Fotos: '+t);await waitRun(sha);
+  for(var k=0;k<rs.length;k++){msg('Baixando panorama '+(k+1)+'/'+rs.length+'…');addScene(rs[k].name||'Cômodo',await pano(rs[k].folder+'.jpg'))}
+  msg('✅ Panoramas prontos. Agora ligue os cômodos.')}catch(e){msg('Erro: '+e.message)}$('send').disabled=false};
+$('loadp').onclick=async function(){
+ try{if(!cfg.tok||!cfg.user)return msg('Preencha as configurações (⚙️) primeiro.');msg('Procurando…');
+  var l=await gj('/repos/'+cfg.user+'/'+cfg.priv+'/contents/panos'),ps=l.filter(function(x){return/\.jpg$/i.test(x.name)});
+  if(!ps.length)return msg('Nenhum panorama encontrado em panos/.');
+  for(var i=0;i<ps.length;i++){msg('Baixando '+(i+1)+'/'+ps.length+'…');addScene(ps[i].name.replace(/\.jpg$/i,''),await pano(ps[i].name))}
+  msg('✅ '+ps.length+' panorama(s) carregado(s).')}catch(e){msg('Erro: '+e.message)}};
+$('ex').onclick=async function(){
+ try{if(!cfg.tok||!cfg.user)return msg('Preencha as configurações (⚙️) primeiro.');
+  var t=$('title').value;if(!sl(t))return msg('Dê um nome ao tour (no topo).');
+  if(!slug)slug=sl(t)+'-'+Math.random().toString(36).slice(2,6);
+  var files=[{path:slug+'/index.html',text:buildHtml()}];SC.forEach(function(s){files.push({path:slug+'/images/'+s.id+'.jpg',blob:s.file})});
+  $('ex').disabled=true;await commit(cfg.pub,files,'Tour: '+t);
+  var u='https://'+cfg.user+'.github.io/'+cfg.pub+'/'+slug+'/',L=$('lnk');L.innerHTML='';
+  var a=document.createElement('a');a.href=u;a.textContent=u;a.target='_blank';L.appendChild(a);
+  var b=document.createElement('button');b.className='btn';b.textContent='Compartilhar link';b.onclick=function(){navigator.share?navigator.share({url:u}):navigator.clipboard.writeText(u)};L.appendChild(b);
+  msg('✅ Publicado! Pode levar 1 a 2 minutos para abrir.')}catch(e){msg('Erro: '+e.message)}$('ex').disabled=!SC.length};
+</script></body></html>
